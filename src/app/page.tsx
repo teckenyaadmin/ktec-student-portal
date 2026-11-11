@@ -57,7 +57,17 @@ export default function Home() {
           <article className="service-card"><div className="icon">◎</div><div className="card-tag">01 / COURSE PLANNING</div><h3>Cluster analysis</h3><p>Explore all 18 programme clusters together and understand subject-based pathways. This is guidance, not an official KUCCPS weighted-points result.</p><div className="price">KES 200 <small>all 18 clusters</small></div><a href={wa("all 18 cluster analyses – KES 200")} target="_blank" rel="noreferrer">Request cluster analysis →</a></article>
           <article className="service-card featured"><div className="icon">⌕</div><div className="card-tag">02 / COURSE DISCOVERY</div><h3>Basic course research</h3><p>Get help exploring a course, what it involves, possible study pathways and questions to ask before choosing.</p><div className="price">KES 100 <small>per basic research request</small></div><a href={wa("basic course research – KES 100")} target="_blank" rel="noreferrer">Research a course →</a></article>
           <article className="service-card"><div className="icon">✧</div><div className="card-tag">03 / PERSONAL DIRECTION</div><h3>Personalised career report</h3><p>A more detailed report to help you reflect on your interests, subject strengths and possible education pathways.</p><div className="price">KES 200 <small>per personalised report</small></div><a href={wa("personalised career report – KES 200")} target="_blank" rel="noreferrer">Request a career report →</a></article>
-        </div>
+         <article className="service-card">
+  <div className="icon">✦</div>
+  <div className="card-tag">04 / CAREER REPORT</div>
+  <h3>Personalised Career Report</h3>
+  <p>Discover suitable courses and career pathways based on your KCSE performance, interests and ambitions.</p>
+  <a href="/career-report" className="button gold">
+    Get Your Career Report →
+  </a>
+  <p><strong>KES 200</strong></p>
+</article>
+                                                                                                                                                                  </div>
       </section>
       <section id="clusters" className="cluster-section">
         <div className="wrap cluster-grid">
