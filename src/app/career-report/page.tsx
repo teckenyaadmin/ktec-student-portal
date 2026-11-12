@@ -10,13 +10,6 @@ const grades = [
   "D+", "D", "D-", "E"
 ];
 
-const subjects = [
-  "English", "Kiswahili", "Mathematics", "Biology",
-  "Chemistry", "Physics", "Geography", "History",
-  "CRE/IRE/HRE", "Agriculture", "Business Studies",
-  "Computer Studies", "Other"
-];
-
 export default function CareerReportPage() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -30,19 +23,57 @@ export default function CareerReportPage() {
   const [extra, setExtra] = useState("");
   const [consent, setConsent] = useState(false);
   const [error, setError] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  function submitForm(e: React.FormEvent<HTMLFormElement>) {
+  async function submitForm(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     setError("");
 
     if (!consent) {
-      setError("Please confirm that you agree to share these details for career guidance.");
+      setError("Please confirm your consent before submitting.");
       return;
     }
 
-    const message = `
+    setSubmitting(true);
+
+    try {
+      const response = await fetch("/api/service-requests", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          full_name: name.trim(),
+          phone: phone.trim(),
+          service_type: "career_report",
+          details: {
+            kcse_year: year,
+            index_number: index.trim(),
+            mean_grade: meanGrade,
+            subject_grades: subjectGrades.trim(),
+            interests: interests.trim(),
+            preferred_study_area: preferredArea,
+            preferred_location: location.trim(),
+            additional_information: extra.trim(),
+          },
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || !result.success || !result.request?.id) {
+        throw new Error(
+          result.error || "We could not save your request. Please try again."
+        );
+      }
+
+      const requestId = result.request.id;
+
+      const message = `
 *PERSONALISED CAREER REPORT REQUEST*
 *KTEC - KENYA TERTIARY EDUCATION CENTER*
+
+*Request Reference:* ${requestId}
 
 *Student details*
 Name: ${name}
@@ -64,17 +95,25 @@ Additional information:
 ${extra || "None"}
 
 *Service requested:* Personalised Career Report
-*Price:* KES 200
+*Service fee:* KES 200
 
+My request has been submitted through the KTEC website.
 Please guide me on payment and the next steps.
 
-Sent through the KTEC website.
-    `.trim();
+Thank you.
+      `.trim();
 
-    window.open(
-      `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+      window.location.href =
+        `https://wa.me/${WHATSAPP}?text=${encodeURIComponent(message)}`;
+
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Something went wrong. Please try again."
+      );
+      setSubmitting(false);
+    }
   }
 
   const fieldStyle: React.CSSProperties = {
@@ -262,9 +301,7 @@ Sent through the KTEC website.
           </label>
 
           <label style={{ display: "block", marginTop: 17 }}>
-            <span style={labelStyle}>
-              Subject grades *
-            </span>
+            <span style={labelStyle}>Subject grades *</span>
             <textarea
               required
               value={subjectGrades}
@@ -368,11 +405,18 @@ Sent through the KTEC website.
             />
             I consent to sharing these details with KTEC for the purpose
             of providing the requested career guidance. I understand that
-            this form opens WhatsApp to submit my request.
+            my request will be saved securely and WhatsApp will open
+            afterwards so that I can discuss payment and next steps.
           </label>
 
           {error && (
-            <p style={{ color: "#b42318", fontSize: 13 }}>
+            <p style={{
+              color: "#b42318",
+              fontSize: 13,
+              background: "#fff0ee",
+              padding: 12,
+              borderRadius: 5,
+            }}>
               {error}
             </p>
           )}
@@ -386,27 +430,30 @@ Sent through the KTEC website.
           }}>
             <b>Service fee: KES 200.</b>
             <br />
-            Submitting this request does not automatically make payment
-            or guarantee admission. KTEC will guide you on payment and
-            the next steps through WhatsApp.
+            Submitting this request does not make payment automatically
+            or guarantee admission. KTEC will guide you on payment
+            and the next steps through WhatsApp.
           </div>
 
           <button
             type="submit"
+            disabled={submitting}
             style={{
               width: "100%",
               marginTop: 20,
               padding: 16,
-              background: "#c6a65c",
+              background: submitting ? "#aaa" : "#c6a65c",
               border: "none",
               borderRadius: 5,
               color: "#10213d",
               fontSize: 15,
               fontWeight: 800,
-              cursor: "pointer",
+              cursor: submitting ? "not-allowed" : "pointer",
             }}
           >
-            SUBMIT CAREER REPORT REQUEST →
+            {submitting
+              ? "SAVING YOUR REQUEST..."
+              : "SUBMIT CAREER REPORT REQUEST →"}
           </button>
         </section>
       </form>
@@ -427,5 +474,5 @@ Sent through the KTEC website.
       </footer>
     </main>
   );
-    }
-    
+          }
+        
